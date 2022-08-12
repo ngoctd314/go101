@@ -17,7 +17,7 @@ const (
 
 func newSys(writer io.Writer, encoder encoder) Logger {
 	core := zapcore.NewCore(
-		encoder.zapEncoder(),
+		encoder.encode(),
 		zapcore.AddSync(writer),
 		zapcore.InfoLevel, // level to enable
 	)

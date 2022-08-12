@@ -7,7 +7,7 @@ import (
 )
 
 type encoder interface {
-	zapEncoder() zapcore.Encoder
+	encode() zapcore.Encoder
 }
 
 // encoder: how to log represent (format)
@@ -19,7 +19,7 @@ type jsonEncoder struct {
 	verbose bool
 }
 
-func (e *jsonEncoder) zapEncoder() zapcore.Encoder {
+func (e *jsonEncoder) encode() zapcore.Encoder {
 	defaultKey := struct {
 		msg           string
 		levelKey      string

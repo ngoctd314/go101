@@ -7,7 +7,7 @@ import (
 )
 
 type encoder interface {
-	encode() zapcore.Encoder
+	encode() any
 }
 
 // encoder: how to log represent (format)
@@ -15,11 +15,11 @@ type encoder interface {
 // json
 // text
 
-type jsonEncoder struct {
+type zapEncoder struct {
 	verbose bool
 }
 
-func (e *jsonEncoder) encode() zapcore.Encoder {
+func (e *zapEncoder) encode() any {
 	defaultKey := struct {
 		msg           string
 		levelKey      string
@@ -34,8 +34,7 @@ func (e *jsonEncoder) encode() zapcore.Encoder {
 	}
 
 	return zapcore.NewJSONEncoder(zapcore.EncoderConfig{
-		MessageKey:     defaultKey.msg,
-		LevelKey:       defaultKey.levelKey,
+		MessageKey: defaultKey.msg, LevelKey: defaultKey.levelKey,
 		TimeKey:        "", // use es ts
 		NameKey:        "logger",
 		CallerKey:      "",

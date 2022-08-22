@@ -1,17 +1,14 @@
 package golog
 
-// log_factory: combine writer, encoder and lib => golog
-//
-
 // Logger ...
 type Logger interface {
-	Info(...any)
+	Info(string)
 	Infow(string, ...any)
 
-	Warn(...any)
+	Warn(string)
 	Warnw(string, ...any)
 
-	Error(...any)
+	Error(string)
 	Errorw(string, ...any)
 }
 
@@ -20,7 +17,7 @@ var (
 )
 
 func init() {
-	logMgmt[Sys] = newSys(newStdoutWriter(), &jsonEncoder{
+	logMgmt[Sys] = newStructureLog(newStdoutWriter(), &zapEncoder{
 		verbose: false,
 	})
 }

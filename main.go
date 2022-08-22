@@ -1,31 +1,31 @@
 package main
 
 import (
-	"strconv"
-
-	"github.com/ngoctd314/go101/go-code/golog"
+	"encoding/json"
+	"os"
 )
 
 func main() {
-	fn := func() func() int {
-		count := 0
-		return func() int {
-			count++
-			return count
-		}
-	}
-	k := fn()
-	golog.Info(golog.Sys, strconv.Itoa(k()))
-	golog.Info(golog.Sys, strconv.Itoa(k()))
-	golog.Info(golog.Sys, strconv.Itoa(k()))
-	golog.Info(golog.Sys, strconv.Itoa(k()))
+	jsonn()
+}
 
-	var a = 1
-	switch a {
-	case 1:
-		golog.Info(golog.Sys, strconv.Itoa(a))
-		fallthrough
-	case 2:
-		golog.Info(golog.Sys, strconv.Itoa(a))
+// Person ...
+type Person struct {
+	Name    string
+	Age     int
+	Address string
+}
+
+func jsonn() {
+	p := Person{
+		Name:    "TDN",
+		Age:     22,
+		Address: "Ha Noi",
 	}
+	listPerson := []Person{}
+	for i := 0; i < 10000; i++ {
+		listPerson = append(listPerson, p)
+	}
+	data, _ := json.Marshal(listPerson)
+	os.WriteFile("data.json", data, 0600)
 }

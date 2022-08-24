@@ -6,42 +6,45 @@ import (
 )
 
 func newUnStructureLog(writer io.Writer) Logger {
-	return newStdLoggerAdapter()
+	stdLog := &stdLogger{
+		Logger: new(log.Logger),
+	}
+	stdLog.SetOutput(writer)
+	stdLog.SetFlags(0)
+
+	return stdLog
 }
 
-type stdLoggerAdapter struct {
-}
-
-func newStdLoggerAdapter() Logger {
-	return &stdLoggerAdapter{}
-}
-
-// Info implements Logger
-func (*stdLoggerAdapter) Info(msg string) {
-	log.Println(msg)
-}
-
-// Infow implements Logger
-func (*stdLoggerAdapter) Infow(msg string, kv ...any) {
-	log.Println("NOOP")
+type stdLogger struct {
+	*log.Logger
 }
 
 // Error implements Logger
-func (*stdLoggerAdapter) Error(string) {
-	log.Println("NOOP")
+func (*stdLogger) Error(string) {
+	panic("unimplemented")
 }
 
 // Errorw implements Logger
-func (*stdLoggerAdapter) Errorw(string, ...any) {
-	log.Println("NOOP")
+func (*stdLogger) Errorw(string, ...any) {
+	panic("unimplemented")
+}
+
+// Info implements Logger
+func (*stdLogger) Info(string) {
+	panic("unimplemented")
+}
+
+// Infow implements Logger
+func (*stdLogger) Infow(string, ...any) {
+	panic("unimplemented")
 }
 
 // Warn implements Logger
-func (*stdLoggerAdapter) Warn(string) {
-	log.Println("NOOP")
+func (*stdLogger) Warn(string) {
+	panic("unimplemented")
 }
 
 // Warnw implements Logger
-func (*stdLoggerAdapter) Warnw(string, ...any) {
-	log.Println("NOOP")
+func (*stdLogger) Warnw(string, ...any) {
+	panic("unimplemented")
 }

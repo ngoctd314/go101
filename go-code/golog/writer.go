@@ -17,22 +17,26 @@ func newStdoutWriter() io.Writer {
 	return os.Stdout
 }
 
-type fileWriterConfig struct {
-	filename     string
-	age          int
-	rorationTime string
-}
-
 // fileWriter with rotate feature comming from lumberjack
-func newFileWriter(params fileWriterConfig) io.Writer {
+func newFileWriter(filename string, opts ...fileWriterOption) io.Writer {
 	writer := &lumberjack.Logger{
-		Filename:   params.filename,
-		MaxSize:    0,
-		MaxAge:     params.age,
-		MaxBackups: 0,
-		LocalTime:  false,
-		Compress:   false,
+		Filename: filename,
 	}
 
 	return writer
+}
+
+type fileWriterOption func(*lumberjack.Logger)
+
+// withMaxAge set maxAge for logger file
+func withMaxAge(maxAge int) fileWriterOption {
+	return func(l *lumberjack.Logger) {
+		l.MaxAge = maxAge
+	}
+}
+
+func withMaxSize(maxSize int) fileWriterOption {
+	return func(l *lumberjack.Logger) {
+		l.MaxSize = maxSize
+	}
 }

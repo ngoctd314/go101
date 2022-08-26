@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func newStructureLog(writer io.Writer, enc encoder) Logger {
+func newStructureLog(writer io.Writer, enc encoder) logger {
 	core := zapcore.NewCore(
 		enc.encode().(zapcore.Encoder),
 		zapcore.AddSync(writer),
@@ -16,39 +16,39 @@ func newStructureLog(writer io.Writer, enc encoder) Logger {
 
 	// >= Error => enable stacktrace
 	zapLogger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.WarnLevel)).Sugar()
-	return newZapAdapter(zapLogger)
+	return newZapLogger(zapLogger)
 }
 
-// zapAdapter implement Logger interface
-type zapLoggerAdapter struct {
+// structure log with zap (sugger)
+type zapLogger struct {
 	*zap.SugaredLogger
 }
 
-func newZapAdapter(zapLogger *zap.SugaredLogger) Logger {
-	return &zapLoggerAdapter{
-		SugaredLogger: zapLogger,
+func newZapLogger(sugarLogger *zap.SugaredLogger) logger {
+	return &zapLogger{
+		SugaredLogger: sugarLogger,
 	}
 }
 
-func (adapter *zapLoggerAdapter) Info(msg string) {
-	adapter.Info(msg)
+func (zap *zapLogger) info(msg string) {
+	zap.Info(msg)
 }
 
-func (adapter *zapLoggerAdapter) Infow(msg string, kv ...any) {
-	adapter.Warnw(msg, kv...)
+func (zap *zapLogger) infow(msg string, kv ...any) {
+	zap.Warnw(msg, kv...)
 }
 
-func (adapter *zapLoggerAdapter) Warn(msg string) {
-	adapter.Warn(msg)
+func (zap *zapLogger) warn(msg string) {
+	zap.Warn(msg)
 }
 
-func (adapter *zapLoggerAdapter) Warnw(msg string, kv ...any) {
-	adapter.Warnw(msg, kv...)
+func (zap *zapLogger) warnw(msg string, kv ...any) {
+	zap.Warnw(msg, kv...)
 }
-func (adapter *zapLoggerAdapter) Error(msg string) {
-	adapter.Error(msg)
+func (zap *zapLogger) error(msg string) {
+	zap.Error(msg)
 }
 
-func (adapter *zapLoggerAdapter) Errorw(msg string, kv ...any) {
-	adapter.Errorw(msg, kv...)
+func (zap *zapLogger) errorw(msg string, kv ...any) {
+	zap.Errorw(msg, kv...)
 }

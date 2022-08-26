@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func newUnStructureLog(writer io.Writer) Logger {
+func newUnStructureLog(writer io.Writer) logger {
 	stdLog := &stdLogger{
 		Logger: new(log.Logger),
 	}
@@ -20,31 +20,31 @@ type stdLogger struct {
 }
 
 // Error implements Logger
-func (*stdLogger) Error(string) {
+func (*stdLogger) error(string) {
 	panic("unimplemented")
 }
 
 // Errorw implements Logger
-func (*stdLogger) Errorw(string, ...any) {
+func (*stdLogger) errorw(string, ...any) {
 	panic("unimplemented")
 }
 
 // Info implements Logger
-func (*stdLogger) Info(string) {
+func (*stdLogger) info(string) {
 	panic("unimplemented")
 }
 
 // Infow implements Logger
-func (*stdLogger) Infow(string, ...any) {
+func (*stdLogger) infow(string, ...any) {
 	panic("unimplemented")
 }
 
 // Warn implements Logger
-func (*stdLogger) Warn(string) {
+func (*stdLogger) warn(string) {
 	panic("unimplemented")
 }
 
 // Warnw implements Logger
-func (*stdLogger) Warnw(string, ...any) {
+func (*stdLogger) warnw(string, ...any) {
 	panic("unimplemented")
 }

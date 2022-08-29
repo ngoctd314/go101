@@ -11,11 +11,19 @@ type logger interface {
 	errorw(string, ...any)
 }
 
+// LogType log variation
+type LogType string
+
+// LogType enum
+const (
+	Server LogType = "server-log" // log comming from system
+)
+
 // mapping LogType -> LogType instance
 var _logMgmt = make(map[LogType]logger)
 
 func init() {
-	_logMgmt[Sys] = newStructureLog(newStdoutWriter(), &zapEncoder{
+	_logMgmt[Server] = newStructureLog(newStdoutWriter(), &zapEncoder{
 		verbose: false,
 	})
 }

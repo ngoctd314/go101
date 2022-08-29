@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
-func fn() {
-	func() {
-		defer fmt.Println("abc")
-	}()
-	fmt.Println("RUN")
-
-}
-
 func main() {
-	fn()
+	var t time.Timer
+	t = *time.NewTimer(time.Second * 5)
+
+	select {
+	case v := <-t.C:
+		fmt.Println(v)
+	}
 }

@@ -10,10 +10,13 @@ require (
 require (
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
+	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.0 // indirect
+	github.com/aerospike/aerospike-client-go v4.5.2+incompatible
 	github.com/json-iterator/go v1.1.12
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

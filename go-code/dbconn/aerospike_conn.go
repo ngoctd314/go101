@@ -8,19 +8,14 @@ import (
 	"github.com/aerospike/aerospike-client-go"
 )
 
-// AerospikeCrud ...
-type AerospikeCrud interface {
-	IsConnected() bool
-}
-
 var (
 	// _aerospikeConnMgmt manages aerospike connection by host
-	_aerospikeConnMgmt = make(map[string]AerospikeCrud)
+	_aerospikeConnMgmt = make(map[string]*aerospike.Client)
 	_aerospikeConnMu   sync.RWMutex
 )
 
 // GetAerospikeConn return connection to aerospike
-func GetAerospikeConn(hosts string) AerospikeCrud {
+func GetAerospikeConn(hosts string) *aerospike.Client {
 	_aerospikeConnMu.RLock()
 	conn, ok := _aerospikeConnMgmt[hosts]
 	// already connected and ready to take to the database => return immediatedly

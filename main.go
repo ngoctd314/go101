@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"time"
+	"github.com/ngoctd314/go101/go-code/golog"
 )
 
-func main() {
-	var t time.Timer
-	t = *time.NewTimer(time.Second * 5)
+// Person ...
+type Person struct {
+	Name []byte
+}
 
-	select {
-	case v := <-t.C:
-		fmt.Println(v)
-	}
+func main() {
+	golog.Errorw(golog.Server, "Hello world", "TDN", "XYZ", "MNP", "P")
+	golog.Infow(golog.Test, "Hello world", "abc", "C")
 }

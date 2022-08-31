@@ -24,7 +24,8 @@ func GetAerospikeConn(hosts string) *aerospike.Client {
 	}
 	_aerospikeConnMu.RUnlock()
 
-	client, err := aerospike.NewClientWithPolicyAndHost(nil, newAerHost(hosts)...)
+	policy := aerospike.NewClientPolicy()
+	client, err := aerospike.NewClientWithPolicyAndHost(policy, newAerHost(hosts)...)
 	if err != nil {
 		panic(err)
 	}

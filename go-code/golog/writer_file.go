@@ -2,28 +2,36 @@ package golog
 
 import (
 	"io"
-	"os"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// writer: how to log write
-// writer implement io.Writer interface
+// fileWriter write log to file
 //
-// stdout
-// file
-
-func newStdoutWriter() io.Writer {
-	return os.Stdout
+// fileWriter implement io.Writer interface
+type fileWriter struct {
+	filename string
+	opts     []fileWriterOption
 }
 
 // fileWriter with rotate feature comming from lumberjack
 func newFileWriter(filename string, opts ...fileWriterOption) io.Writer {
+	return &fileWriter{
+		filename: filename,
+		opts:     opts,
+	}
+}
+
+// Write implements io.Writer
+func (w *fileWriter) Write(p []byte) (n int, err error) {
 	writer := &lumberjack.Logger{
-		Filename: filename,
+		Filename: w.filename,
+	}
+	for _, opt := range w.opts {
+		opt(writer)
 	}
 
-	return writer
+	return writer.Write(p)
 }
 
 type fileWriterOption func(*lumberjack.Logger)

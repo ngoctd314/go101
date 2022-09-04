@@ -16,6 +16,7 @@ require (
 	github.com/klauspost/compress v1.15.0 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.20.1 // indirect
+	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect

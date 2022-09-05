@@ -2,25 +2,26 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
+	"runtime"
+	"strings"
 )
 
-func source(c chan<- int32) {
-	rb := rand.Intn(3) + 1
-	time.Sleep(time.Duration(rb) * time.Second)
-	select {
-	case c <- int32(rb):
-	default:
-	}
-}
+var a string = "abcdefghijklmnopqrstuv"
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-	c := make(chan int32, 1)
-	for i := 0; i < 5; i++ {
-		go source(c)
-	}
-	rnd := <-c
-	fmt.Println(rnd)
+	var b strings.Builder
+	b.Grow(5000)
+	memUsage(b)
+}
+
+var p = fmt.Println
+
+func memUsage(m1, m2 *runtime.MemStats) {
+	p("Alloc:", m2.Alloc-m1.Alloc,
+		"TotalAlloc:", m2.TotalAlloc-m1.TotalAlloc,
+		"HeapAlloc:", m2.HeapAlloc-m1.HeapAlloc)
+}
+
+func fn(s string) {
+	a = string([]byte(s[:5]))
 }

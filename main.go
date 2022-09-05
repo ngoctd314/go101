@@ -1,5 +1,6 @@
 package main
 
+<<<<<<< HEAD
 import "fmt"
 
 func main() {
@@ -12,4 +13,7 @@ func main() {
 		fmt.Println(k)
 	}
 	fmt.Println(k)
+=======
+func main() {
+>>>>>>> f2daed86771bed2cf14d91bc3a59c19cbb042d5e
 }

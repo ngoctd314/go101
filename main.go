@@ -11,7 +11,8 @@ var a string = "abcdefghijklmnopqrstuv"
 func main() {
 	var b strings.Builder
 	b.Grow(5000)
-	memUsage(b)
+	fn(a)
+	fmt.Println(len(a))
 }
 
 var p = fmt.Println

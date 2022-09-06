@@ -1,6 +1,9 @@
 package golog
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 // teleWriter send log to tele
 //
@@ -13,5 +16,6 @@ func newTeleWriter() io.Writer {
 
 // Write implements io.Writer
 func (*teleWriter) Write(p []byte) (n int, err error) {
-	panic("unimplemented")
+	fmt.Println("RUN tele writer", string(p))
+	return len(p), nil
 }

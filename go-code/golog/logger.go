@@ -41,7 +41,7 @@ func init() {
 	zapLoggerCompose := newZapLoggerCompose(zapConsoleEncoder)
 
 	_logMgmt[Server] = zapLoggerCompose(stdoutWriter)
-	_logMgmt[Test] = newUnStructureLog(stdoutWriter)
+	_logMgmt[Test] = zapLoggerCompose(newTeleWriter())
 }
 
 // Info log with info level

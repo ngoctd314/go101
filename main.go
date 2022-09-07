@@ -2,19 +2,33 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"math/rand"
 )
 
-var a = func() any {
-	fmt.Println("Run first")
-	return nil
-}()
+func fn() int {
+	arr := []int{1, 2, 3, 4}
+	return rand.Intn(len(arr))
+}
 
-func init() {
-	fmt.Println("init function")
+type person struct {
+	friends map[string]int
+	age     *int
+}
+
+var k = 10
+
+func (p person) u() {
+	p.friends["b"] = 2
+	*p.age = 20
 }
 
 func main() {
-	fmt.Println("Run main")
-	log.Panic("abc")
+	p := person{
+		friends: map[string]int{
+			"a": 1,
+		},
+		age: &k,
+	}
+	p.u()
+	fmt.Println(*p.age, k)
 }

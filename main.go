@@ -1,8 +1,20 @@
 package main
 
-// golog import
-import . "github.com/ngoctd314/go101/go-code/golog"
+import (
+	"fmt"
+	"log"
+)
+
+var a = func() any {
+	fmt.Println("Run first")
+	return nil
+}()
+
+func init() {
+	fmt.Println("init function")
+}
 
 func main() {
-	Info(Test, "Hello world")
+	fmt.Println("Run main")
+	log.Panic("abc")
 }

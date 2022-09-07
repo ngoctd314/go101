@@ -17,9 +17,20 @@ type person struct {
 
 var k = 10
 
-func (p person) u() {
+func (p *person) u() {
 	p.friends["b"] = 2
 	*p.age = 20
+}
+
+func (p *person) clone() *person {
+	friends := make(map[string]int)
+	for k, v := range p.friends {
+		friends[k] = v
+	}
+	friends["is_clone"] = 1
+
+	p.friends = friends
+	return p
 }
 
 func main() {
@@ -29,6 +40,6 @@ func main() {
 		},
 		age: &k,
 	}
-	p.u()
-	fmt.Println(*p.age, k)
+	p1 := p.clone()
+	fmt.Println(p, p1)
 }

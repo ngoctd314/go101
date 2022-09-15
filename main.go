@@ -2,44 +2,24 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
+	"runtime"
 )
 
-func fn() int {
-	arr := []int{1, 2, 3, 4}
-	return rand.Intn(len(arr))
-}
-
-type person struct {
-	friends map[string]int
-	age     *int
-}
-
-var k = 10
-
-func (p *person) u() {
-	p.friends["b"] = 2
-	*p.age = 20
-}
-
-func (p *person) clone() *person {
-	friends := make(map[string]int)
-	for k, v := range p.friends {
-		friends[k] = v
-	}
-	friends["is_clone"] = 1
-
-	p.friends = friends
-	return p
+func notify(msg *string) {
+	fmt.Println("msg: ", *msg)
 }
 
 func main() {
-	p := person{
-		friends: map[string]int{
-			"a": 1,
-		},
-		age: &k,
-	}
-	p1 := p.clone()
-	fmt.Println(p, p1)
+	var status string
+	defer func() {
+		fmt.Println("msg: ", status)
+	}()
+	a := "abc"
+	status = a
+}
+
+func printAlloc() {
+	var mem runtime.MemStats
+	runtime.ReadMemStats(&mem)
+	fmt.Printf("%d KB\n", mem.Alloc/1000)
 }

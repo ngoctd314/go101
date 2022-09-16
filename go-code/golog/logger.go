@@ -1,8 +1,6 @@
 package golog
 
 import (
-	"io"
-
 	"go.uber.org/zap/zapcore"
 )
 
@@ -16,8 +14,6 @@ type logger interface {
 	error(string)
 	errorw(string, ...any)
 }
-
-type loggerCompose func(writer io.Writer) logger
 
 // LogType log variation
 type LogType string
@@ -38,10 +34,10 @@ func init() {
 	// structure log with zap
 	zapEncoderConfig := newZapEncoderConfig(zapEncoderWithTimeKey("ts"), zapEncoderWithStacktraceKey("stacktrace"))
 	zapConsoleEncoder := zapcore.NewJSONEncoder(zapEncoderConfig)
-	zapLoggerCompose := newZapLoggerCompose(zapConsoleEncoder)
+	structureLog := newZapStructureLogger(stdoutWriter, zapConsoleEncoder)
 
-	_logMgmt[Server] = zapLoggerCompose(stdoutWriter)
-	_logMgmt[Test] = zapLoggerCompose(newTeleWriter())
+	_logMgmt[Server] = structureLog
+	_logMgmt[Test] = structureLog
 }
 
 // Info log with info level

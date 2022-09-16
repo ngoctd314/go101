@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func newUnStructureLog(writer io.Writer) logger {
+func newUnStructureLog(writer io.Writer) *stdLogger {
 	stdLog := &stdLogger{
 		Logger: new(log.Logger),
 	}

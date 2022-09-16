@@ -9,20 +9,18 @@ import (
 )
 
 // sugared logger instance
-func newZapLoggerCompose(zapEncoder zapcore.Encoder) loggerCompose {
-	return func(writer io.Writer) logger {
-		core := zapcore.NewCore(
-			zapEncoder,
-			zapcore.AddSync(writer),
-			zapcore.InfoLevel, // level to enable
-		)
+func newZapStructureLogger(writer io.Writer, zapEncoder zapcore.Encoder) *zapLogger {
+	core := zapcore.NewCore(
+		zapEncoder,
+		zapcore.AddSync(writer),
+		zapcore.InfoLevel, // level to enable
+	)
 
-		// >= Warnlevel => enable stacktrace
-		zap := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.WarnLevel))
+	// >= Warnlevel => enable stacktrace
+	zap := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.WarnLevel))
 
-		return &zapLogger{
-			SugaredLogger: zap.Sugar(),
-		}
+	return &zapLogger{
+		SugaredLogger: zap.Sugar(),
 	}
 }
 

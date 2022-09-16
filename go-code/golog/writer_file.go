@@ -1,8 +1,6 @@
 package golog
 
 import (
-	"io"
-
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -15,15 +13,15 @@ type fileWriter struct {
 }
 
 // fileWriter with rotate feature comming from lumberjack
-func newFileWriter(filename string, opts ...fileWriterOption) io.Writer {
-	return &fileWriter{
+func newFileWriter(filename string, opts ...fileWriterOption) fileWriter {
+	return fileWriter{
 		filename: filename,
 		opts:     opts,
 	}
 }
 
 // Write implements io.Writer
-func (w *fileWriter) Write(p []byte) (n int, err error) {
+func (w fileWriter) Write(p []byte) (n int, err error) {
 	writer := &lumberjack.Logger{
 		Filename: w.filename,
 	}

@@ -1,21 +1,13 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"fmt"
 	_ "net/http/pprof"
-	"os"
-	"os/signal"
 )
 
 func main() {
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
-
-	signalCh := make(chan os.Signal, 1)
-	signal.Notify(signalCh, os.Interrupt)
-	select {
-	case <-signalCh:
-	}
+	s := []int{1, 2, 3}
+	s1 := s[:2:2]
+	s2 := append(s1, 10)
+	fmt.Println(s, s1, s2)
 }

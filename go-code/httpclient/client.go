@@ -2,6 +2,9 @@ package httpclient
 
 import (
 	"context"
+	"fmt"
+	"net"
+	"os"
 
 	"github.com/valyala/fasthttp"
 )
@@ -16,6 +19,14 @@ func NewClient(opts ...ClientOption) *Client {
 	client := &Client{
 		lib: &fasthttp.Client{
 			NoDefaultUserAgentHeader: true,
+			Dial: func(addr string) (net.Conn, error) {
+				conn, err := net.Dial("tcp", addr)
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				return conn, nil
+			},
 		},
 	}
 
@@ -96,5 +107,6 @@ func (c *Client) Do(ctx context.Context, args Args) (result Response) {
 		Err:        err,
 		StatusCode: 200,
 	}
+
 	return
 }

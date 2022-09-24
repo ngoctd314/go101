@@ -1,60 +1,66 @@
 package main
 
 import (
-	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
+	"runtime/pprof"
 	"time"
-
-	"github.com/ngoctd314/go101/go-code/httpclient"
 )
 
-type httpFetcher interface {
-	Do(ctx context.Context, args httpclient.Args) httpclient.Response
-}
-
-type server struct {
-	// httpclient .
-	httpclient httpFetcher
-}
+var cpuprofile = flag.String("cpuprofile", "cpu.prof", "write cpu profile to `file`")
+var memprofile = flag.String("memprofile", "mem.prof", "write memory profile to `file`")
 
 func main() {
-	srv := &server{
-		httpclient: httpclient.NewClient(
-			httpclient.WithDuration(time.Millisecond),
-			httpclient.WithTimeout(time.Millisecond*100),
-			httpclient.WithMaxConns(1000000),
-		),
-	}
+	flag.Parse()
+	go func() {
+		http.HandleFunc("/cpu_profile", func(w http.ResponseWriter, r *http.Request) {
+			if len(*cpuprofile) != 0 {
+				f, err := os.Create(*cpuprofile)
+				if err != nil {
+					log.Fatal("could not create CPU profile: ", err)
+				}
+				defer f.Close()
 
-	for i := 0; i < 2; i++ {
-		go func(i int) {
-			var u string
-			if i%2 == 0 {
-				u = "http://localhost:8080/api/fast"
-			} else {
-				u = "http://localhost:8081/api/fast"
+				if err := pprof.StartCPUProfile(f); err != nil {
+					log.Fatal("could not start CPU profile: ", err)
+				}
+				defer pprof.StopCPUProfile()
 			}
+			w.Write([]byte("write to cpu.profile"))
+		})
 
-			resp := srv.httpclient.Do(context.TODO(), httpclient.Args{
-				URL:     u,
-				Method:  http.MethodGet,
-				Body:    []byte{},
-				Header:  map[string]string{},
-				Query:   map[string]string{},
-				Timeout: 0,
-			})
-			log.Println(string(resp.Body), resp.Err)
-		}(i)
-	}
+		http.HandleFunc("/mem_profile", func(w http.ResponseWriter, r *http.Request) {
+			if len(*memprofile) != 0 {
+				f, err := os.Create(*memprofile)
+				if err != nil {
+					log.Fatal("cound not create memory profile: ", err)
+				}
+				defer f.Close()
+				runtime.GC()
+				if err := pprof.WriteHeapProfile(f); err != nil {
+					log.Fatal("cound not write memory profile: ", err)
+				}
+			}
+			w.Write([]byte("write to mem.profile"))
+		})
+
+		http.ListenAndServe(":6060", nil)
+	}()
+
+	go func() {
+		str := make([]byte, 0)
+		for {
+			time.Sleep(time.Millisecond)
+			tmp := make([]byte, 1000)
+			str = append(str, tmp...)
+		}
+	}()
 
 	cancel := make(chan os.Signal)
 	signal.Notify(cancel, os.Interrupt)
-	select {
-	case <-cancel:
-		log.Println("Server is shutdown at: ", time.Now().String())
-	}
-
+	<-cancel
 }

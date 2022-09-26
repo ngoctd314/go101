@@ -12,6 +12,8 @@ Each Profile has a unique name. A few profiles are predefined:
 |block|stack traces that led to blocking on synchronization primitives|
 |mutex|stack traces of holders of contended mutexes|
 
+Prfiling is a program optimization technique. "To profile a program", means to collect detailed statistics about how a program runs. Those statistics can be CPU usage, memory allocation, time spent on a program routines, number of function calls ... etc.
+
 ## Getting a heap profile with pprof
 
 ```go

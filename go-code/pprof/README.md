@@ -35,3 +35,7 @@ We can split CPU time into two subcategories:
 ## Kernel
 
 In this section, we used the term "kernel". Kernel refers to the central component of an os. The kernel manages the system resources. It also manages the different hardware components. When we are doing a system call, we use the kernel facilities. For instance, opening a file in Go will trigger a system call that the kernel will handle.
+
+## Code optimization
+
+Code optimization is the process of modifying a software system to make some aspect of it work more efficiently or use fewer resource.

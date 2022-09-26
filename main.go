@@ -8,27 +8,24 @@ import (
 )
 
 func main() {
+	// set CPU profiling (1)
 	f, err := os.Create("profile.pb.gz")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = pprof.StartCPUProfile(f)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer pprof.StopCPUProfile()
-
-	result := doSum()
-	fmt.Println(result)
-
+	do()
 }
 
-func doSum() int {
-	sum := 0
-	for i := 0; i < 787766777; i++ {
-		sum += i
+func do() {
+	// CPU intensive operation (2)
+	test := 0
+	for i := 0; i < 1e9; i++ {
+		test = i
 	}
-
-	return sum
+	fmt.Println(test)
 }

@@ -22,3 +22,16 @@ Prfiling is a program optimization technique. "To profile a program", means to c
 ## alloc_space vs inuse_space
 
 go tool pprof has the option to show you either allocation counts of in use memory.
+
+## CPU time
+
+The CPU time represents the Central Processing Unit's time to execute the set of instructions defined in your program. The more your program is complex and makes intensive calculations, the more CPU time you need.
+
+We can split CPU time into two subcategories:
+
+- CPU user time
+- CPU system time
+
+## Kernel
+
+In this section, we used the term "kernel". Kernel refers to the central component of an os. The kernel manages the system resources. It also manages the different hardware components. When we are doing a system call, we use the kernel facilities. For instance, opening a file in Go will trigger a system call that the kernel will handle.

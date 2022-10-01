@@ -36,6 +36,15 @@ We can split CPU time into two subcategories:
 
 In this section, we used the term "kernel". Kernel refers to the central component of an os. The kernel manages the system resources. It also manages the different hardware components. When we are doing a system call, we use the kernel facilities. For instance, opening a file in Go will trigger a system call that the kernel will handle.
 
-## Code optimization
+## Diganostic
 
-Code optimization is the process of modifying a software system to make some aspect of it work more efficiently or use fewer resource.
+Diagnostics solutions can be categorized into the following groups:
+
+- Profiling: Profiling tools analyze the complexity and costs of a Go program such as its memory usage and frequently called functions to identify the expensive sections of a Go program.
+
+- Tracing: Tracing is a way to instrument code to analyze latency throughput the lifecycle of a call or user request. Traces provide an overview of how much latency each component contributes to the orverall latency in a system. Traces can span multiple Go processes.
+
+- Debugging: Debugging allows us to pause a Go program and examine its execution. Program state and flow can be verified with debugging.
+
+- Runtime statistics and events
+

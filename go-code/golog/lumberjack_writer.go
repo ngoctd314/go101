@@ -4,24 +4,24 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// fileWriter write log to file
+// lumberjackWriter write log to file
 //
 // fileWriter implement io.Writer interface
-type fileWriter struct {
+type lumberjackWriter struct {
 	filename string
 	opts     []fileWriterOption
 }
 
-// fileWriter with rotate feature comming from lumberjack
-func newFileWriter(filename string, opts ...fileWriterOption) fileWriter {
-	return fileWriter{
+// newLumberJackWriter with rotate feature comming from lumberjack
+func newLumberJackWriter(filename string, opts ...fileWriterOption) lumberjackWriter {
+	return lumberjackWriter{
 		filename: filename,
 		opts:     opts,
 	}
 }
 
 // Write implements io.Writer
-func (w fileWriter) Write(p []byte) (n int, err error) {
+func (w lumberjackWriter) Write(p []byte) (n int, err error) {
 	writer := &lumberjack.Logger{
 		Filename: w.filename,
 	}

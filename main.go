@@ -3,18 +3,33 @@ package main
 import (
 	"fmt"
 	_ "net/http/pprof"
+	"sync"
 )
 
-type Person struct {
-	Name *string
-}
-
 func main() {
-	p := Person{Name: new(string)}
-	fn(p)
-	fmt.Println(*p.Name)
-}
+	// The capacity must be one
+	mutex := make(chan struct{}, 1)
 
-func fn(p Person) {
-	*p.Name = "abc"
+	counter := 0
+	increase := func() {
+		// lock through send
+		mutex <- struct{}{}
+		counter++
+		// unlock through receive
+		<-mutex
+	}
+
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	increase1000 := func() {
+		defer wg.Done()
+		for i := 0; i < 100000; i++ {
+			increase()
+		}
+	}
+
+	go increase1000()
+	go increase1000()
+	wg.Wait()
+	fmt.Println(counter)
 }

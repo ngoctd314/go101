@@ -1,6 +1,8 @@
 package golog
 
 import (
+	"io"
+
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -8,40 +10,37 @@ import (
 //
 // fileWriter implement io.Writer interface
 type lumberjackWriter struct {
-	filename string
-	opts     []fileWriterOption
+	writer io.Writer
 }
 
 // newLumberJackWriter with rotate feature comming from lumberjack
-func newLumberJackWriter(filename string, opts ...fileWriterOption) lumberjackWriter {
+func newLumberJackWriter(filePath string, opts ...func(*lumberjack.Logger)) lumberjackWriter {
+	writer := &lumberjack.Logger{
+		Filename: filePath,
+	}
+	for _, opt := range opts {
+		opt(writer)
+	}
+
 	return lumberjackWriter{
-		filename: filename,
-		opts:     opts,
+		writer: writer,
 	}
 }
 
 // Write implements io.Writer
 func (w lumberjackWriter) Write(p []byte) (n int, err error) {
-	writer := &lumberjack.Logger{
-		Filename: w.filename,
-	}
-	for _, opt := range w.opts {
-		opt(writer)
-	}
-
-	return writer.Write(p)
+	return w.writer.Write(p)
 }
 
-type fileWriterOption func(*lumberjack.Logger)
-
-// withMaxAge set maxAge for logger file
-func withMaxAge(maxAge int) fileWriterOption {
+// withLumberJackMaxAge set maxAge for logger file
+func withLumberJackMaxAge(maxAge int) func(*lumberjack.Logger) {
 	return func(l *lumberjack.Logger) {
 		l.MaxAge = maxAge
 	}
 }
 
-func withMaxSize(maxSize int) fileWriterOption {
+// withLumberJackMaxSize set maxSize for logger
+func withLumberJackMaxSize(maxSize int) func(*lumberjack.Logger) {
 	return func(l *lumberjack.Logger) {
 		l.MaxSize = maxSize
 	}

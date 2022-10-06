@@ -1,11 +1,33 @@
 package golog
 
-import "os"
+import (
+	"io"
+	"os"
+
+	"github.com/robfig/cron/v3"
+)
 
 type fileWriter struct {
-	f *os.File
+	writer        io.Writer
+	rotatePattern string
+	cron          *cron.Cron
 }
 
-func newFileWriter()
+func newFileWriter(filePath string, opts ...func(*fileWriter)) fileWriter {
+	_ = os.MkdirAll(filePath, 0644)
+	f, err := os.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
 
-type fileCreator struct{}
+	fwriter := fileWriter{
+		writer: f,
+	}
+
+	return fwriter
+}
+
+// Write ...
+func (f fileWriter) Write(p []byte) (n int, err error) {
+	return f.writer.Write(p)
+}

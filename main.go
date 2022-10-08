@@ -1,35 +1,36 @@
 package main
 
 import (
-	"fmt"
-	_ "net/http/pprof"
-	"sync"
+	"log"
+	"math/rand"
+	"time"
 )
 
+// Seat ...
+type Seat int
+
+// Bar ...
+type Bar chan Seat
+
+// ServeCustomerAtSeat ...
+func (bar Bar) ServeCustomerAtSeat(c int, seat Seat) {
+	log.Print("++ customer#", c, " drinks at seat#", seat)
+	time.Sleep(time.Second * time.Duration(2+rand.Intn(6)))
+	log.Print("-- customer#", c, " frees seat#", seat)
+	bar <- seat
+}
+
 func main() {
-	// The capacity must be one
-	mutex := make(chan struct{}, 1)
+	rand.Seed(time.Now().UnixNano())
 
-	counter := 0
-	increase := func() {
-		// lock through send
-		mutex <- struct{}{}
-		counter++
-		// unlock through receive
-		<-mutex
+	bar27x7 := make(Bar, 10)
+	for seatId := 0; seatId < cap(bar27x7); seatId++ {
+		bar27x7 <- Seat(seatId)
 	}
 
-	wg := sync.WaitGroup{}
-	wg.Add(2)
-	increase1000 := func() {
-		defer wg.Done()
-		for i := 0; i < 100000; i++ {
-			increase()
-		}
+	for customerId := 0; ; customerId++ {
+		time.Sleep(time.Second)
+		seat := <-bar27x7
+		go bar27x7.ServeCustomerAtSeat(customerId, seat)
 	}
-
-	go increase1000()
-	go increase1000()
-	wg.Wait()
-	fmt.Println(counter)
 }

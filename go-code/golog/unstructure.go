@@ -11,7 +11,7 @@ func newUnStructureLog(writer io.Writer) *stdLogger {
 		Logger: new(log.Logger),
 	}
 	stdLog.SetOutput(writer)
-	stdLog.SetFlags(0)
+	stdLog.SetFlags(log.Ldate | log.Ltime)
 
 	return stdLog
 }

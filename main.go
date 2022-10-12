@@ -1,34 +1,36 @@
 package main
 
 import (
-	"log"
-	"os"
-	"os/signal"
-	"time"
+	"fmt"
+	"sync"
 
 	"github.com/robfig/cron/v3"
 )
 
-func main() {
-	cron := cron.New()
+var cronn *cron.Cron
 
-	cron.Start()
-	time.Sleep(time.Second * 4)
-	cron.AddFunc("@every 0h0m1s", func() {
-		log.Println("run every 1 seconds")
+func prune() {
+	fmt.Println("RUN once")
+	cronn.AddFunc("@every 0h0m1s", func() {
+		fmt.Println("RUN every second")
 	})
-	go func() {
-		cron.AddFunc("@every 0h0m2s", func() {
-			log.Println("run every 2 seconds")
-		})
+}
 
-	}()
+var once sync.Once
 
-	cancel := make(chan os.Signal)
-	signal.Notify(cancel, os.Interrupt)
-	select {
-	case <-cancel:
-		log.Println("dequeue job and run")
-		cron.Stop()
+func newFn() {
+	once.Do(prune)
+
+	fmt.Println("create new instance")
+}
+
+func main() {
+	cronn = cron.New()
+	cronn.Start()
+
+	for i := 0; i < 10; i++ {
+		go newFn()
 	}
+	done := make(chan bool)
+	<-done
 }

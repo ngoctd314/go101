@@ -1,36 +1,23 @@
 package main
 
-import (
-	"fmt"
-	"sync"
+var counter = func(n int) chan chan<- int {
+	requests := make(chan chan<- int)
 
-	"github.com/robfig/cron/v3"
-)
+	go func() {
+		for request := range requests {
+			if request == nil {
+				n++
+			} else {
+				request <- n
+			}
+		}
+	}()
 
-var cronn *cron.Cron
+	return requests
+}(0)
 
-func prune() {
-	fmt.Println("RUN once")
-	cronn.AddFunc("@every 0h0m1s", func() {
-		fmt.Println("RUN every second")
-	})
-}
-
-var once sync.Once
-
-func newFn() {
-	once.Do(prune)
-
-	fmt.Println("create new instance")
-}
+// implicitly converted to chan chan <- (chan <- int)
 
 func main() {
-	cronn = cron.New()
-	cronn.Start()
 
-	for i := 0; i < 10; i++ {
-		go newFn()
-	}
-	done := make(chan bool)
-	<-done
 }

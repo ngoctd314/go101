@@ -2,9 +2,7 @@ package httpclient
 
 import (
 	"context"
-	"fmt"
-	"net"
-	"os"
+	"time"
 
 	"github.com/valyala/fasthttp"
 )
@@ -19,14 +17,10 @@ func NewClient(opts ...ClientOption) *Client {
 	client := &Client{
 		lib: &fasthttp.Client{
 			NoDefaultUserAgentHeader: true,
-			Dial: func(addr string) (net.Conn, error) {
-				conn, err := net.Dial("tcp", addr)
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-				return conn, nil
-			},
+			Dial: (&fasthttp.TCPDialer{
+				Concurrency:      4096,
+				DNSCacheDuration: time.Hour,
+			}).Dial,
 		},
 	}
 
@@ -53,7 +47,6 @@ func (c *Client) Do(ctx context.Context, args Args) (result Response) {
 	)
 
 	defer func() {
-		fasthttp.ReleaseRequest(httpRequest)
 		fasthttp.ReleaseResponse(httpResponse)
 
 		if err := recover(); err != nil {
@@ -92,6 +85,7 @@ func (c *Client) Do(ctx context.Context, args Args) (result Response) {
 	} else {
 		err = c.lib.Do(httpRequest, httpResponse)
 	}
+	fasthttp.ReleaseRequest(httpRequest)
 
 	if err != nil {
 		result = Response{

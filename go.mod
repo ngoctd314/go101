@@ -1,6 +1,6 @@
 module github.com/ngoctd314/go101
 
-go 1.18
+go 1.19
 
 require (
 	github.com/buger/jsonparser v1.1.1

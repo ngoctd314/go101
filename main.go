@@ -1,57 +1,53 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"net/http"
+	"math/rand"
 	"sync"
-	"time"
-
-	"github.com/ngoctd314/go101/go-code/httpclient"
-	"github.com/ngoctd314/go101/go-code/workerpool"
 )
 
-var hclient = httpclient.NewClient(httpclient.WithMaxConns(10_000))
-
-type httpJob struct {
-	res chan httpclient.Response
-	wg  *sync.WaitGroup
-}
-
-func (h httpJob) Do() error {
-	defer h.wg.Done()
-
-	res := hclient.Do(context.TODO(), httpclient.Args{
-		URL:    "http://localhost:8080",
-		Method: http.MethodGet,
-	})
-
-	h.res <- res
-
-	return nil
-}
-
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		now := time.Now()
-		wg := &sync.WaitGroup{}
-		var n = 10
-		res := make(chan httpclient.Response, n)
-		for i := 0; i < n; i++ {
-			wg.Add(1)
-			go func() {
-				job := httpJob{
-					res: res,
-					wg:  wg,
+	const max = 100000
+	const numSenders = 1000
+
+	wgReceivers := sync.WaitGroup{}
+	wgReceivers.Add(1)
+
+	dataCh := make(chan int)
+	// stopCh is an additional signal channel
+	// Its sender is the receiver of channel
+	stopCh := make(chan struct{})
+
+	// senders
+	for i := 0; i < numSenders; i++ {
+		go func() {
+			for {
+				// The try-receive operation is to try
+				// to exit the goroutine as early as possible.
+				select {
+				case <-stopCh:
+					return
+				default:
 				}
-				workerpool.EnQueue(job)
-			}()
+
+				select {
+				case <-stopCh:
+					return
+				case dataCh <- rand.Intn(max):
+				}
+			}
+		}()
+	}
+
+	// the receiver
+	go func() {
+		defer wgReceivers.Done()
+
+		for value := range dataCh {
+			if value == max-1 {
+				// The receiver of channel dataCh is also the sender of stopCh
+				close(stopCh)
+				return
+			}
 		}
-		wg.Wait()
-
-		since := fmt.Sprint(time.Since(now))
-		w.Write([]byte(since))
-	})
-
-	http.ListenAndServe(":8081", nil)
+	}()
 }

@@ -21,6 +21,7 @@ func NewClient(opts ...ClientOption) *Client {
 				Concurrency:      4096,
 				DNSCacheDuration: time.Hour,
 			}).Dial,
+			MaxIdemponentCallAttempts: 1,
 		},
 	}
 

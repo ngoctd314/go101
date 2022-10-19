@@ -20,6 +20,8 @@ func (d *dispatcher) initWorker() {
 		worker.exec()
 	}
 
+	go d.dispatch()
+
 }
 
 func (d *dispatcher) dispatch() {
@@ -27,11 +29,9 @@ func (d *dispatcher) dispatch() {
 		select {
 		// receive job from jobQueue
 		case job := <-jobQueue:
-			go func(job Job) {
-				// assign job to idle worker
-				worker := <-d.workerPool
-				worker <- job
-			}(job)
+			// assign job to idle worker
+			worker := <-d.workerPool
+			worker <- job
 		}
 	}
 }

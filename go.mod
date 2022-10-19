@@ -18,11 +18,13 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/aerospike/aerospike-client-go v4.5.2+incompatible
+	github.com/golang/protobuf v1.5.2
 	github.com/robfig/cron/v3 v3.0.1
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

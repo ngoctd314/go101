@@ -1,57 +1,75 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
+
+	_ "net/http/pprof"
 
 	"github.com/ngoctd314/go101/go-code/httpclient"
 	"github.com/ngoctd314/go101/go-code/workerpool"
 )
 
-var hclient = httpclient.NewClient(httpclient.WithMaxConns(10_000))
-
-type httpJob struct {
-	res chan httpclient.Response
-	wg  *sync.WaitGroup
+func main() {
+	fn1()
 }
 
-func (h httpJob) Do() error {
+var hc = httpclient.NewClient(httpclient.WithMaxConns(10_000))
+
+type httpjob struct {
+	wg  *sync.WaitGroup
+	res chan int
+}
+
+func (h httpjob) Do() error {
 	defer h.wg.Done()
-
-	res := hclient.Do(context.TODO(), httpclient.Args{
-		URL:    "http://localhost:8080",
-		Method: http.MethodGet,
-	})
-
-	h.res <- res
-
+	time.Sleep(time.Second)
+	h.res <- 1
 	return nil
 }
 
-func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		now := time.Now()
-		wg := &sync.WaitGroup{}
-		var n = 10
-		res := make(chan httpclient.Response, n)
-		for i := 0; i < n; i++ {
-			wg.Add(1)
-			go func() {
-				job := httpJob{
-					res: res,
-					wg:  wg,
-				}
-				workerpool.EnQueue(job)
-			}()
+var n = 1000
+
+func fn() {
+
+	wg := &sync.WaitGroup{}
+	res := make(chan int, n)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		job := httpjob{
+			wg:  wg,
+			res: res,
 		}
-		wg.Wait()
+		go job.Do()
+	}
 
-		since := fmt.Sprint(time.Since(now))
-		w.Write([]byte(since))
-	})
+	wg.Wait()
+	close(res)
+	s := 0
+	for r := range res {
+		s += r
+	}
+	fmt.Println(s)
+}
 
-	http.ListenAndServe(":8081", nil)
+func fn1() {
+	wg := &sync.WaitGroup{}
+	res := make(chan int, n)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		job := httpjob{
+			wg:  wg,
+			res: res,
+		}
+		workerpool.EnQueue(job)
+	}
+
+	wg.Wait()
+	close(res)
+	s := 0
+	for r := range res {
+		s += r
+	}
+	fmt.Println(s)
 }

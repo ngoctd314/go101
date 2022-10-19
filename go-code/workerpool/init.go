@@ -6,15 +6,20 @@ import (
 )
 
 func init() {
-	jobQueue = make(chan Job)
+	maxQueue := os.Getenv("MAX_QUEUE")
+	mq, err := strconv.Atoi(maxQueue)
+	if err != nil {
+		mq = 3000
+	}
+
+	jobQueue = make(chan Job, mq)
 
 	maxWorker := os.Getenv("MAX_WORKER")
 	mw, err := strconv.Atoi(maxWorker)
 	if err != nil {
-		mw = 1200
+		mw = 1000
 	}
 
 	dispatcher := newDispatcher(mw)
 	dispatcher.initWorker()
-	go dispatcher.dispatch()
 }

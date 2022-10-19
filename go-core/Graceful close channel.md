@@ -109,3 +109,58 @@ func receiver(c <-chan int, max int) {
 ```
 
 **2. One receiver, N senders, the only receiver says "please stop sending more" by closing an additional signal channel**
+
+This is a situation a little more complicated than the above one. We can't let the receiver close the data channel to stop data transferring, for doing this will break the channel closing principle. But we can let the receiver close an additional signal channel to notify senders to stop sending values
+
+```go
+func main() {
+	const max = 100000
+	const numSenders = 1000
+
+	wgReceivers := sync.WaitGroup{}
+	wgReceivers.Add(1)
+
+	dataCh := make(chan int)
+	// stopCh is an additional signal channel
+	// Its sender is the receiver of channel
+	stopCh := make(chan struct{})
+
+	// senders
+	for i := 0; i < numSenders; i++ {
+		go func() {
+			for {
+				// The try-receive operation is to try
+				// to exit the goroutine as early as possible.
+				select {
+				case <-stopCh:
+					return
+				default:
+				}
+
+				select {
+				case <-stopCh:
+					return
+				case dataCh <- rand.Intn(max):
+				}
+			}
+		}()
+	}
+
+	// the receiver
+	go func() {
+		defer wgReceivers.Done()
+
+		for value := range dataCh {
+			if value == max-1 {
+				// The receiver of channel dataCh is also the sender of stopCh
+				close(stopCh)
+				return
+			}
+		}
+	}()
+}
+```
+As mentioned in the comments, for the additional signal channel, its sender is the receiver of the data channel. The additional signal channel is closed by its only sender, which holds the channel closing principle.
+
+In this example, the channel dataCh is never closed. Yes, channels don't have to be closed. A channel will be eventually garbage collected if no goroutines reference it any more, whether it is closed or not. So the gracefulness of closing a channel here is not to close the channel.
+

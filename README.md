@@ -3,6 +3,7 @@
 - Go core
 - Go trick
 - Go code
+- Go optimize
 
 ## Go core
 

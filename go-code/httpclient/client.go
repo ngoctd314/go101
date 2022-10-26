@@ -2,7 +2,9 @@ package httpclient
 
 import (
 	"context"
-	"time"
+	"fmt"
+	"net"
+	"sync"
 
 	"github.com/valyala/fasthttp"
 )
@@ -12,15 +14,21 @@ type Client struct {
 	lib *fasthttp.Client
 }
 
+var count = 0
+var mu sync.Mutex
+
 // NewClient creates new httpclient and uses fasthttp as dependency
 func NewClient(opts ...ClientOption) *Client {
 	client := &Client{
 		lib: &fasthttp.Client{
 			NoDefaultUserAgentHeader: true,
-			Dial: (&fasthttp.TCPDialer{
-				Concurrency:      4096,
-				DNSCacheDuration: time.Hour,
-			}).Dial,
+			Dial: func(addr string) (net.Conn, error) {
+				mu.Lock()
+				count++
+				mu.Unlock()
+				fmt.Println("count: ", count)
+				return net.Dial("tcp", addr)
+			},
 			MaxIdemponentCallAttempts: 1,
 		},
 	}

@@ -13,12 +13,25 @@ import (
 func main() {
 	hc := httpclient.NewClient(
 		httpclient.WithMaxConns(100),
-		httpclient.WithMaxKeepAliveIdleDuration(time.Second*2),
+		httpclient.WithMaxKeepAliveIdleDuration(time.Second*10),
+		httpclient.WithDialFunc(1),
 	)
 
 	ctx := context.Background()
 
 	resp := hc.DoMany(ctx,
+		httpclient.Args{
+			URL:    "http://localhost:8080",
+			Method: http.MethodGet,
+		},
+		httpclient.Args{
+			URL:    "http://localhost:8080",
+			Method: http.MethodGet,
+		},
+		httpclient.Args{
+			URL:    "http://localhost:8080",
+			Method: http.MethodGet,
+		},
 		httpclient.Args{
 			URL:    "http://localhost:8080",
 			Method: http.MethodGet,
@@ -33,63 +46,4 @@ func main() {
 	}
 	time.Sleep(time.Second * 1)
 
-	resp1 := hc.DoMany(ctx,
-		httpclient.Args{
-			URL:    "http://localhost:8080",
-			Method: http.MethodGet,
-		},
-	)
-
-	for v := range resp1 {
-		if v.Err != nil {
-			log.Panic(v.Err)
-		}
-		fmt.Println(string(v.Body))
-	}
-
-	time.Sleep(time.Second * 1)
-
-	resp2 := hc.DoMany(ctx,
-		httpclient.Args{
-			URL:    "http://localhost:8080",
-			Method: http.MethodGet,
-		},
-	)
-
-	for v := range resp2 {
-		if v.Err != nil {
-			log.Panic(v.Err)
-		}
-		fmt.Println(string(v.Body))
-	}
-	time.Sleep(time.Second * 1)
-
-	resp3 := hc.DoMany(ctx,
-		httpclient.Args{
-			URL:    "http://localhost:8080",
-			Method: http.MethodGet,
-		},
-	)
-
-	for v := range resp3 {
-		if v.Err != nil {
-			log.Panic(v.Err)
-		}
-		fmt.Println(string(v.Body))
-	}
-	time.Sleep(time.Second * 1)
-
-	resp4 := hc.DoMany(ctx,
-		httpclient.Args{
-			URL:    "http://localhost:8080",
-			Method: http.MethodGet,
-		},
-	)
-
-	for v := range resp4 {
-		if v.Err != nil {
-			log.Panic(v.Err)
-		}
-		fmt.Println(string(v.Body))
-	}
 }

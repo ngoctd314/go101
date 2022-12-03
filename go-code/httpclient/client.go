@@ -2,8 +2,6 @@ package httpclient
 
 import (
 	"context"
-	"log"
-	"net"
 	"net/http"
 	"sync"
 
@@ -22,14 +20,8 @@ var mu sync.Mutex
 func NewClient(opts ...ClientOption) *Client {
 	client := &Client{
 		lib: &fasthttp.Client{
-			NoDefaultUserAgentHeader: true,
-			Dial: func(addr string) (net.Conn, error) {
-				mu.Lock()
-				count++
-				log.Println("call dial times: ", count)
-				mu.Unlock()
-				return net.Dial("tcp", addr)
-			},
+			// exclude User-Agent header from request
+			NoDefaultUserAgentHeader:  true,
 			MaxIdemponentCallAttempts: 1,
 		},
 	}
@@ -56,10 +48,10 @@ func (c *Client) Do(ctx context.Context, args Args) Response {
 		err          error
 	)
 
+	// must release fasthttp request,response: reduce garbage pressure
 	defer func() {
-		// release fasthttp resource
-		fasthttp.ReleaseResponse(httpResponse)
 		fasthttp.ReleaseRequest(httpRequest)
+		fasthttp.ReleaseResponse(httpResponse)
 	}()
 
 	// validate argument

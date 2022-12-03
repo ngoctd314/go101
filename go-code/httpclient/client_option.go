@@ -1,6 +1,7 @@
 package httpclient
 
 import (
+	"log"
 	"time"
 
 	"github.com/valyala/fasthttp"
@@ -66,5 +67,26 @@ func WithRetryFunc(r RetryIf) ClientOption {
 		c.lib.RetryIf = func(*fasthttp.Request) bool {
 			return r.Retry()
 		}
+	}
+}
+
+// WithDialFunc custom concurrency amount
+func WithDialFunc(concurrency int) ClientOption {
+	return func(c *Client) {
+		// fn := func(addr string) (net.Conn, error) {
+		// 	mu.Lock()
+		// 	count++
+		// 	log.Println("call dial times: ", count)
+		// 	mu.Unlock()
+		// 	return net.Dial("tcp", addr)
+		// }
+		// c.lib.Dial = fn
+		c.lib.Dial = func() fasthttp.DialFunc {
+			log.Println("dial")
+			return (&fasthttp.TCPDialer{
+				Concurrency:      0,
+				DNSCacheDuration: time.Hour, // cache DSN on 1 hour
+			}).Dial
+		}()
 	}
 }

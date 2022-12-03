@@ -1,14 +1,14 @@
 package main
 
 import (
+	"log"
 	"net/http"
-	"time"
 )
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		time.Sleep(time.Second * 5)
-		w.Write([]byte("Hello world"))
+		log.Println("GET: ", r.URL.RequestURI())
+		w.Write([]byte("pong"))
 	})
-	http.ListenAndServe(":8001", nil)
+	http.ListenAndServe(":8080", nil)
 }

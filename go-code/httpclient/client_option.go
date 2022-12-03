@@ -9,7 +9,7 @@ import (
 // ClientOption implements optional pattern to configure Client object
 type ClientOption func(*Client)
 
-// WithMaxConns set maxinum number of connections per each host which may be established
+// WithMaxConns set maximum number of connections per each host which may be established
 //
 // DefaultMaxConnsPerHost is used if not set
 func WithMaxConns(conns int) ClientOption {
@@ -27,10 +27,10 @@ func WithMaxKeepAliveIdleDuration(duration time.Duration) ClientOption {
 	}
 }
 
-// WithKeepAliveDuration keep-alive connections are closed after this duration.
+// WithKeepAliveIntervalDuration keep-alive connections are closed after this duration.
 //
 // By default connection duration is unlimited.
-func WithKeepAliveDuration(duration time.Duration) ClientOption {
+func WithKeepAliveIntervalDuration(duration time.Duration) ClientOption {
 	return func(c *Client) {
 		c.lib.MaxConnDuration = duration
 	}

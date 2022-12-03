@@ -2,8 +2,9 @@ package httpclient
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"net"
+	"net/http"
 	"sync"
 
 	"github.com/valyala/fasthttp"
@@ -25,8 +26,8 @@ func NewClient(opts ...ClientOption) *Client {
 			Dial: func(addr string) (net.Conn, error) {
 				mu.Lock()
 				count++
+				log.Println("call dial times: ", count)
 				mu.Unlock()
-				fmt.Println("count: ", count)
 				return net.Dial("tcp", addr)
 			},
 			MaxIdemponentCallAttempts: 1,
@@ -48,7 +49,7 @@ func NewClient(opts ...ClientOption) *Client {
 //
 // return:
 // response, statusCode, and error (if has)
-func (c *Client) Do(ctx context.Context, args Args) (result Response) {
+func (c *Client) Do(ctx context.Context, args Args) Response {
 	var (
 		httpRequest  = fasthttp.AcquireRequest()
 		httpResponse = fasthttp.AcquireResponse()
@@ -56,29 +57,26 @@ func (c *Client) Do(ctx context.Context, args Args) (result Response) {
 	)
 
 	defer func() {
+		// release fasthttp resource
 		fasthttp.ReleaseResponse(httpResponse)
-
-		if err := recover(); err != nil {
-			result = Response{
-				Body:       []byte{},
-				Err:        err.(error),
-				StatusCode: 400,
-			}
-		}
+		fasthttp.ReleaseRequest(httpRequest)
 	}()
 
 	// validate argument
 	err = args.validate()
 	if err != nil {
-		panic(err)
+		// invalid argument case, return error with status code 400
+		return errResponse(err)
 	}
 
 	httpRequest.SetRequestURI(args.URL)
 	httpRequest.Header.SetMethod(args.Method)
 
-	if args.Body != nil {
+	// set body in case POST method
+	if args.Method == http.MethodPost && args.Body != nil {
 		httpRequest.SetBody(args.Body)
 	}
+
 	if args.Header != nil {
 		for k, v := range args.Header {
 			httpRequest.Header.Add(k, v)
@@ -89,27 +87,55 @@ func (c *Client) Do(ctx context.Context, args Args) (result Response) {
 			httpRequest.URI().QueryArgs().Set(k, v)
 		}
 	}
+
+	// exec fasthttp request
 	if args.Timeout != 0 {
 		err = c.lib.DoTimeout(httpRequest, httpResponse, args.Timeout)
 	} else {
 		err = c.lib.Do(httpRequest, httpResponse)
 	}
-	fasthttp.ReleaseRequest(httpRequest)
 
 	if err != nil {
-		result = Response{
-			Body:       []byte{},
-			Err:        err,
-			StatusCode: 400,
-		}
-		return
+		// exec http error, return error with status code 400
+		return errResponse(err)
 	}
 
-	result = Response{
+	return Response{
 		Body:       httpResponse.Body(),
 		Err:        err,
 		StatusCode: 200,
 	}
+}
 
-	return
+func errResponse(err error) Response {
+	return Response{
+		Body:       []byte{},
+		Err:        err,
+		StatusCode: 400,
+	}
+}
+
+// DoMany request concurrency
+func (c *Client) DoMany(ctx context.Context, args ...Args) <-chan Response {
+	var (
+		outbound = make(chan Response, len(args))
+		wg       sync.WaitGroup
+	)
+
+	wg.Add(len(args))
+	for _, arg := range args {
+		go func(arg Args) {
+			defer wg.Done()
+			outbound <- c.Do(ctx, arg)
+		}(arg)
+	}
+
+	go func() {
+		// pipeline principle
+		// stages close their outbound channels when all the send operations are done
+		wg.Wait()
+		close(outbound)
+	}()
+
+	return outbound
 }
